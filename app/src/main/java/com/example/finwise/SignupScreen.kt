@@ -1,5 +1,8 @@
 package com.example.finwise
 
+import android.content.Context
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +30,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -35,18 +39,34 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.finwise.database.User
+import com.example.finwise.database.UserDao
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import androidx.hilt.navigation.compose.hiltViewModel
+
 
 @Composable
-fun SignupScreen(navHostController: NavHostController) {
+fun SignupScreen (
+    navHostController: NavHostController
+) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var mobileNumber by remember { mutableStateOf("") }
-    var dob by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
+
+    val viewModel: FinanceViewModel = hiltViewModel()
+
+    val context = LocalContext.current
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -118,17 +138,6 @@ fun SignupScreen(navHostController: NavHostController) {
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // Date of Birth Input
-                    OutlinedTextField(
-                        value = dob,
-                        onValueChange = { dob = it },
-                        label = { Text("Date of Birth") },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(24.dp),
-                        singleLine = true
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
 
                     // Password Input
                     OutlinedTextField(
@@ -174,7 +183,26 @@ fun SignupScreen(navHostController: NavHostController) {
 
                     // Sign Up Button
                     Button(
-                        onClick = { navHostController.navigate("home") },
+                        onClick = {
+                            if(validateInput(context, name, email, mobileNumber, password, confirmPassword)){
+
+                                val newUser = User(email, password, name, mobileNumber)
+
+                                viewModel.signUpUser(newUser,
+                                    onSuccess = {
+                                        navHostController.navigate("home")
+                                    },
+                                    onError = { message ->
+                                        Log.d("SignUp", "Error: $message")
+                                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                                    }
+                                )
+                            }
+                            else{
+                                Log.d("SignUp", "Validation Failed")
+                                Toast.makeText(context, "Enter valid details", Toast.LENGTH_SHORT).show()
+                            }
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp),
@@ -206,7 +234,61 @@ fun SignupScreen(navHostController: NavHostController) {
                 }
             }
 
-
         }
     }
+}
+
+
+fun validateInput(
+    context: Context,
+    name: String,
+    email: String,
+    mobileNumber: String,
+    password: String,
+    confirmPassword: String
+): Boolean {
+
+    if (name.isBlank()) {
+        Toast.makeText(context, "Please enter your name", Toast.LENGTH_SHORT).show()
+        return false
+    }
+
+    if (email.isBlank()) {
+        Toast.makeText(context, "Please enter your email", Toast.LENGTH_SHORT).show()
+        return false
+    }
+
+    if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+        Toast.makeText(context, "Invalid email format", Toast.LENGTH_SHORT).show()
+        return false
+    }
+
+    if (mobileNumber.isBlank()) {
+        Toast.makeText(context, "Please enter your mobile number", Toast.LENGTH_SHORT).show()
+        return false
+    }
+
+    if (mobileNumber.length != 10 || !mobileNumber.all { it.isDigit() }) {
+        Toast.makeText(context, "Invalid mobile number", Toast.LENGTH_SHORT).show()
+        return false
+    }
+
+
+    if (password.isBlank()) {
+        Toast.makeText(context, "Please enter your password", Toast.LENGTH_SHORT).show()
+        return false
+    }
+
+    if (password.length < 6) {
+        Toast.makeText(context, "Password must be at least 6 characters long", Toast.LENGTH_SHORT).show()
+        return false
+    }
+
+    if (password != confirmPassword) {
+        Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
+        return false
+    }
+
+    return true
+
 }

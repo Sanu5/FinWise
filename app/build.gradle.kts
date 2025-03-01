@@ -2,7 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    id("com.google.devtools.ksp")
+    id("com.google.devtools.ksp")version "2.0.21-1.0.27"
+    id("kotlin-kapt")
+    id("dagger.hilt.android.plugin")
 }
 
 android {
@@ -66,20 +68,27 @@ dependencies {
     implementation ("androidx.navigation:navigation-compose:2.7.0")
 
     // Hilt for Dependency Injection
-    implementation ("com.google.dagger:hilt-android:2.45")
-    ksp ("com.google.dagger:hilt-compiler:2.45")
+    implementation ("com.google.dagger:hilt-android:2.50")
+    kapt("com.google.dagger:hilt-compiler:2.50")
+    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
+
 
     // Room Database
-    implementation ("androidx.room:room-runtime:2.5.0")
+    implementation ("androidx.room:room-runtime:2.6.1")
     implementation ("androidx.room:room-ktx:2.6.1")
-    ksp ("androidx.room:room-compiler:2.5.0")
+    ksp ("androidx.room:room-compiler:2.6.1")
 
     // Lifecycle (ViewModel and LiveData)
-    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.0")
-    implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.6.0")
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
+    implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
+    implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
+    implementation ("androidx.compose.runtime:runtime-livedata:1.5.4")
 
     // Accompanist for Pager (Onboarding)
     implementation ("com.google.accompanist:accompanist-pager:0.32.0")
 
     implementation ("androidx.compose.material:material-icons-extended:1.5.4")
+
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 }

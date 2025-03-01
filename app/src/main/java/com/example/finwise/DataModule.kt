@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.example.finwise.database.AppDatabase
 import com.example.finwise.database.TransactionDao
+import com.example.finwise.database.UserDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,5 +30,10 @@ object DataModule {
     @Provides
     fun provideTransactionDao(db: AppDatabase): TransactionDao {
         return db.transactionDao()
+    }
+
+    @Provides
+    fun provideUserDao(db: AppDatabase): UserDao {
+        return db.userDao()
     }
 }
