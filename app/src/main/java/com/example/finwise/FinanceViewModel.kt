@@ -8,6 +8,7 @@ import com.example.finwise.database.TransactionEntity
 import com.example.finwise.database.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -15,11 +16,11 @@ import javax.inject.Inject
 @HiltViewModel
 class FinanceViewModel @Inject constructor(private val repository: TransactionRepository, private val userRepository: UserRepository) : ViewModel() {
 
-    val incomeTransaction = repository.getTransactionsByType("income")
-    val expenseTransaction = repository.getTransactionsByType("expense")
+    val incomeTransaction: Flow<List<TransactionEntity>> = repository.getTransactionsByType("income")
+    val expenseTransaction: Flow<List<TransactionEntity>> = repository.getTransactionsByType("expense")
 
-    val totalIncome: LiveData<Double> = repository.getTotalByType("income") ?: MutableLiveData<Double>(0.0)
-    val totalExpense: LiveData<Double> = repository.getTotalByType("expense") ?: MutableLiveData<Double>(0.0)
+    val totalIncome: Flow<Double> = repository.getTotalByType("income")
+    val totalExpense: Flow<Double> = repository.getTotalByType("expense")
 
 
     fun addTransaction(transactionEntity: TransactionEntity) {
@@ -28,17 +29,17 @@ class FinanceViewModel @Inject constructor(private val repository: TransactionRe
         }
     }
 
-    suspend fun getUserByEmail(email: String): User? {
-            return userRepository.getUserByEmail(email)
-
-    }
-
-    fun insertUser(user: User) {
-        viewModelScope.launch {
-            userRepository.insertUser(user)
-        }
-
-    }
+//    suspend fun getUserByEmail(email: String): User? {
+//            return userRepository.getUserByEmail(email)
+//
+//    }
+//
+//    fun insertUser(user: User) {
+//        viewModelScope.launch {
+//            userRepository.insertUser(user)
+//        }
+//
+//    }
 
     fun signUpUser(
         user: User,
