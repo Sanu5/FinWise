@@ -17,9 +17,11 @@ fun AppNavigation() {
         composable(Screen.SignUp.route) { SignupScreen(
             navHostController = navController
         ) }
-        composable(Screen.Home.route) { HomeScreen(navController) }
+        composable(Screen.Home.route) { HomeScreen(
+            navController
+        ) }
 //        composable(Screen.Notifications.route) { NotificationsScreen(navController) }
 //        composable(Screen.AccountBalance.route) { AccountBalanceScreen(navController) }
-//        composable(Screen.Analysis.route) { AnalysisScreen(navController) }
+        composable(Screen.Analysis.route) { AnalysisScreen(navController) }
     }
 }
